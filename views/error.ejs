@@ -1,0 +1,16 @@
+
+<% layout('layout/boiler') %>
+
+
+    <div class = "row">
+        <div class = "col-6 offset-3">
+            <div class = "alert alert-danger" role = "alert">
+             <h4 class = "alert-heading"> <%= err.message %> </h4>
+    <pre class="mb-0" style="white-space: pre-wrap; word-wrap: break-word; font-size: 0.8rem;">
+        
+        <%= err.stack %>
+      </pre>
+        </div>
+    </div>
+   
+</div>
