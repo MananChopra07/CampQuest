@@ -9,7 +9,7 @@ let Joi = require('joi');
 app.use(methodOverride('_method'))
 app.engine('ejs', ejsMate);
 let campquest = require('./models/campquest');
-mongoose.connect('mongodb://localhost:27017/camp-quest');
+mongoose.connect('mongodb+srv://MananChopra07:NoraChopra@cluster0.jtzuajy.mongodb.net/camp-quest?retryWrites=true&w=majority');
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, "connection error"));
 let Eerror = require('./utils/Eerror')
