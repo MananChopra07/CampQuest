@@ -2,9 +2,11 @@ let express = require('express')
 let ejsMate = require('ejs-mate');
 let catchAsync = require('./utils/catchAsync');
 let app =  express();
+
 let mongoose = require('mongoose')
 let methodOverride = require('method-override')
-let {campgroundSchema} = require('./schemas.js')
+let {campgroundSchema,reviewSchema} = require('./schemas.js')
+let Review = require('./models/review');
 let Joi = require('joi');
 app.use(methodOverride('_method'))
 app.engine('ejs', ejsMate);
@@ -54,7 +56,17 @@ app.post('/campquests', validateCampground,catchAsync( async (req,res,next) => {
 
 }))
 
-
+const validateReview = (req,res,next) =>{
+    let {error} = reviewSchema.validate(req.body)
+    if(error){
+        let msg = error.details.map(el => el.message).join(',');
+        throw new Eerror(msg,400);
+    }
+    else{
+        next();
+    }
+ 
+}
 
 app.get('/campquests' ,catchAsync( async(req,res) => {
     let campquests = await campquest.find({})
@@ -64,7 +76,8 @@ app.get('/campquests' ,catchAsync( async(req,res) => {
 
 app.get('/campquests/:id',catchAsync( async (req,res) => {
     let {id} =   req.params;
-    let camp = await campquest.findById(id);
+    let camp = await campquest.findById(id).populate('reviews');
+    console.log(camp);
     res.render('campquests/show', {camp});
 
 }))
@@ -90,12 +103,19 @@ app.delete('/campquests/:id' ,catchAsync( async(req,res) => {
     await campquest.findByIdAndDelete(id);
     res.redirect('/campquests')
 }))
+app.post('/campquests/:id/reviews',validateReview, catchAsync(async(req,res) =>{
+    let camp = await campquest.findById(req.params.id);
+    let review = new Review(req.body.review)
+    camp.reviews.push(review);
+    await review.save();
+    await camp.save();
+    res.redirect(`/campquests/${camp._id}`)
+    
+}))
 
 app.all(/(.*)/,(req,res,next) => {
     next( new Eerror('page not found',404))
 })
-
-
 
 
 app.use((err,req,res,next) => {
